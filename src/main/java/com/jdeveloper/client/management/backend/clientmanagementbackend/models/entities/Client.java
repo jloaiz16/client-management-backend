@@ -27,8 +27,12 @@ public class Client implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date createAt;
 
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false, unique = true)
     private String email;
+
     private String photo;
 
     @PrePersist
