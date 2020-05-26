@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,8 +18,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.validation.Valid;
+
 import org.springframework.web.bind.annotation.PutMapping;
 
 @CrossOrigin(origins = { "http://localhost:4200" })
@@ -52,9 +59,16 @@ public class ClientRestController {
     }
 
     @PostMapping("/clients")
-    public ResponseEntity<?> create(@RequestBody Client client) {
+    public ResponseEntity<?> create(@Valid @RequestBody Client client, BindingResult result) {
         Client newClient = null;
         HashMap<String, Object> response = new HashMap<String, Object>();
+        if (result.hasErrors()) {
+            List<String> errors = result.getFieldErrors().stream()
+                    .map(err -> "The property '" + err.getField() + "' " + err.getDefaultMessage())
+                    .collect(Collectors.toList());
+            response.put("errors", errors);
+            return new ResponseEntity<HashMap<String, Object>>(response, HttpStatus.BAD_REQUEST);
+        }
         try {
             newClient = clientService.save(client);
         } catch (DataAccessException e) {
@@ -66,10 +80,17 @@ public class ClientRestController {
     }
 
     @PutMapping("/clients/{id}")
-    public ResponseEntity<?> uptdate(@PathVariable Long id, @RequestBody Client client) {
+    public ResponseEntity<?> uptdate(@Valid @RequestBody Client client, BindingResult result, @PathVariable Long id) {
         Client currentClient = null;
         Client updatedClient = null;
         HashMap<String, Object> response = new HashMap<String, Object>();
+        if (result.hasErrors()) {
+            List<String> errors = result.getFieldErrors().stream()
+                    .map(err -> "The property '" + err.getField() + "' " + err.getDefaultMessage())
+                    .collect(Collectors.toList());
+            response.put("errors", errors);
+            return new ResponseEntity<HashMap<String, Object>>(response, HttpStatus.BAD_REQUEST);
+        }
         try {
             currentClient = clientService.findById(id);
         } catch (DataAccessException e) {
