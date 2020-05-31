@@ -6,6 +6,8 @@ import com.jdeveloper.client.management.backend.clientmanagementbackend.models.e
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -19,6 +21,12 @@ public class IClientServiceImpl implements IClientService {
     @Transactional(readOnly = true)
     public List<Client> findAll() {
         return (List<Client>) clientDao.findAll();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Client> findAll(Pageable pageable) {
+        return clientDao.findAll(pageable);
     }
 
     @Override

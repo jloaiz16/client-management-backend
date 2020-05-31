@@ -2,8 +2,8 @@ package com.jdeveloper.client.management.backend.clientmanagementbackend.models.
 
 import com.jdeveloper.client.management.backend.clientmanagementbackend.models.entities.Client;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface IClientDao extends CrudRepository<Client, Long> {
-    
+public interface IClientDao extends JpaRepository<Client, Long> {
+
 }
