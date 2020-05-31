@@ -36,6 +36,12 @@ public class IClientServiceImpl implements IClientService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<Client> findByName(String name) {
+        return clientDao.findByName(name);
+    }
+
+    @Override
     @Transactional
     public Client save(Client client) {
         return clientDao.save(client);
