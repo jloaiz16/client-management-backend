@@ -48,7 +48,7 @@ public class ClientRestController {
 
     @GetMapping("/clients/list/page/{page}")
     public Page<Client> index(@PathVariable Integer page) {
-        return clientService.findAll(PageRequest.of(page, 10));
+        return clientService.findAll(PageRequest.of(page, 5));
     }
 
     @GetMapping("/clients/{id}")
