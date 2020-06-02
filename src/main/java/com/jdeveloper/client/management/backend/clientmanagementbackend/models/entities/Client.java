@@ -14,6 +14,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Entity
@@ -27,6 +28,7 @@ public class Client implements Serializable {
     @Column(name = "last_name")
     private String lastName;
 
+    @NotNull
     @Column(name = "create_at")
     @Temporal(TemporalType.DATE)
     private Date createAt;
@@ -42,11 +44,6 @@ public class Client implements Serializable {
     private String email;
 
     private String photo;
-
-    @PrePersist
-    public void prePersist() {
-        createAt = new Date();
-    }
 
     /**
      * @return the id

@@ -117,6 +117,7 @@ public class ClientRestController {
             currentClient.setName(client.getName());
             currentClient.setLastName(client.getLastName());
             currentClient.setEmail(client.getEmail());
+            currentClient.setCreateAt(client.getCreateAt());
             updatedClient = clientService.save(currentClient);
         } catch (DataAccessException e) {
             response.put("message", "Error doing the database update");
