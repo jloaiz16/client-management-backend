@@ -17,9 +17,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -138,6 +144,48 @@ public class ClientRestController {
             return new ResponseEntity<HashMap<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         response.put("message", "Client was deleted succesfully");
+        return new ResponseEntity<HashMap<String, Object>>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/clients/upload")
+    public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file, @RequestParam("id") Long id) {
+        HashMap<String, Object> response = new HashMap<String, Object>();
+        Client client = null;
+        try {
+            client = clientService.findById(id);
+        } catch (DataAccessException e) {
+            response.put("message", "Error doing the database query");
+            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            return new ResponseEntity<HashMap<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        if (client == null) {
+            response.put("message", "The client doesn't exist in the database");
+            return new ResponseEntity<HashMap<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+        if (!file.isEmpty()) {
+            String fileName = UUID.randomUUID().toString().concat("_")
+                    .concat(file.getOriginalFilename().replace(" ", ""));
+            Path rutePath = Paths.get("uploads").resolve(fileName).toAbsolutePath();
+
+            try {
+                Files.copy(file.getInputStream(), rutePath);
+            } catch (IOException e) {
+                response.put("message", "Error doing the file upload");
+                response.put("error", e.getMessage().concat(": ").concat(e.getCause().getMessage()));
+                return new ResponseEntity<HashMap<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+
+            try {
+                client.setPhoto(fileName);
+                clientService.save(client);
+                response.put("client", client);
+                response.put("message", "Photo " + fileName + " was uploaded succesfully");
+            } catch (DataAccessException e) {
+                response.put("message", "Error doing the database update");
+                response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+                return new ResponseEntity<HashMap<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
         return new ResponseEntity<HashMap<String, Object>>(response, HttpStatus.OK);
     }
 }
